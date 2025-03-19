@@ -1,0 +1,14 @@
+tests:
+  - type: "rest_api"
+    name: "store/inventory"
+    request:
+      url: "https://petstore.swagger.io/v2/store/inventory"
+      method: "GET"
+    assertions:
+      - status_code:
+          expected_result: 200
+          actual_result: "{{status}}"
+      - body:
+          expected_result:
+              sold: 16
+          actual_result: "{{body.sold}}"

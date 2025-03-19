@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Run and Result</title>
+    <style>
+        .container { max-width: 800px; margin: 0 auto; }
+        .test-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-family: Arial, sans-serif;
+        }
+
+        .test-table th {
+            background-color: #f5f5f5;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #ddd;
+        }
+
+        .test-table td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .test-pass {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .test-fail {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container" align="center">
+        <h1>Run and Result</h1>
+        <input type="file" id="configFile" accept=".yaml">
+        <button onclick="runTests()">Run Tests</button>
+        <div id="results"></div>
+    </div>
+    <script>
+        async function runTests() {
+            const file = document.getElementById('configFile').files[0];
+            if (!file) return;
+
+            const formData = new FormData();
+            formData.append('config', file);
+
+            try {
+                const response = await fetch('/run-tests', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await response.json();
+                displayResults(data.tests);
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        function displayResults(tests) {
+    const resultsDiv = document.getElementById('results');
+    resultsDiv.innerHTML = `
+        <table class="test-table">
+            <thead>
+                <tr>
+                    <th>Endpoint</th>
+                    <th>Test Name</th>
+                    <th>Actual Result</th>
+                    <th>Expected Result</th>
+                    <th>Result</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${tests.map(test => `
+                    <tr class="${test.passed ? 'test-pass' : 'test-fail'}">
+                        <td>${test.endpoint}</td>
+                        <td>${test.type}</td>
+                        <td>${test.actual ?? 'N/A'}</td>
+                        <td>${test.expected ?? 'N/A'}</td>
+                        <td>${test.passed ? '✓ Passed' : '✗ Failed'}</td>
+                    </tr>
+                `).join('')}
+            </tbody>
+        </table>
+    `;
+}
+    </script>
+</body>
+</html>
